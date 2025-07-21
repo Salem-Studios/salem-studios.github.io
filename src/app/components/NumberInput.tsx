@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Image from 'next/image';
 
 export default function NumberInput({
     label,
@@ -33,9 +34,11 @@ export default function NumberInput({
                         className="w-8 h-8 bg-[#654532] border border-[#bfa77a] hover:bg-[#7b5b43] shadow-md flex items-center justify-center"
                         title="Increase"
                     >
-                        <img
+                        <Image
                             src="/concept_art/weapons/sword_button.png"
                             alt="Increase"
+                            width={24}
+                            height={24}
                             className="w-6 h-6 object-contain rotate-180"
                         />
                     </button>
@@ -44,9 +47,11 @@ export default function NumberInput({
                         className="w-8 h-8 bg-[#654532] border border-[#bfa77a] hover:bg-[#7b5b43] shadow-md flex items-center justify-center"
                         title="Decrease"
                     >
-                        <img
+                        <Image
                             src="/concept_art/weapons/sword_button.png"
                             alt="Decrease"
+                            width={24}
+                            height={24}
                             className="w-6 h-6 object-contain"
                         />
                     </button>
