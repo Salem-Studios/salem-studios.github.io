@@ -23,14 +23,14 @@ export default function NumberInput({
                         type="number"
                         value={value}
                         onChange={(e) => handleChange(parseInt(e.target.value) || 0)}
-                        className="w-16 h-16 text-2xl text-center bg-[#3e2a1e] text-white border border-[#bfa77a] rounded appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                        className="w-16 h-16 text-2xl text-center bg-[#3e2a1e] text-white border border-[#bfa77a] appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     />
                 </div>
 
                 <div className="flex flex-col space-y-1">
                     <button
                         onClick={() => handleChange(value + 1)}
-                        className="w-8 h-8 bg-[#654532] border border-[#bfa77a] hover:bg-[#7b5b43] shadow-md rounded flex items-center justify-center"
+                        className="w-8 h-8 bg-[#654532] border border-[#bfa77a] hover:bg-[#7b5b43] shadow-md flex items-center justify-center"
                         title="Increase"
                     >
                         <img
@@ -41,7 +41,7 @@ export default function NumberInput({
                     </button>
                     <button
                         onClick={() => handleChange(value - 1)}
-                        className="w-8 h-8 bg-[#654532] border border-[#bfa77a] hover:bg-[#7b5b43] shadow-md rounded flex items-center justify-center"
+                        className="w-8 h-8 bg-[#654532] border border-[#bfa77a] hover:bg-[#7b5b43] shadow-md flex items-center justify-center"
                         title="Decrease"
                     >
                         <img
