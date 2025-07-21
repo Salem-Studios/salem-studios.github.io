@@ -3,10 +3,35 @@ import { useState } from 'react';
 import NumberInput from './components/NumberInput';
 import TaskList from './components/TaskList';
 import PlayScreen from './components/PlayScreen';
+import Character from './components/Character';
+
+const CHARACTERS = [
+  {
+    name: 'Karl',
+    charClass: 'Peasant',
+    spriteSrc: '/concept_art/character/Man/Man_idle.png',
+    frameWidth: 48,
+    frameHeight: 48,
+    frameCount: 4,
+    fps: 10,
+  },
+  {
+    name: 'Susan',
+    charClass: 'Peasant',
+    spriteSrc: '/concept_art/character/Woman/Woman_idle.png',
+    frameWidth: 48,
+    frameHeight: 48,
+    frameCount: 4,
+    fps: 10,
+  }
+];
+
 
 export default function Home() {
   const [showSettings, setShowSettings] = useState(false);
   const [started, setStarted] = useState(false);
+  const [characterSelected, setCharacterSelected] = useState(false);
+  const [selectedCharacter, setSelectedCharacter] = useState<typeof CHARACTERS[0] | null>(null);
 
   const handleButtonClick = (label: string) => {
     if (label === 'Settings') {
@@ -16,13 +41,56 @@ export default function Home() {
     }
   };
 
+  if (started && !characterSelected) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#1f0f07] to-[#3e1f13] text-white font-jacquard px-4 relative overflow-hidden">
+        <div className="w-full max-w-2xl flex flex-col items-center gap-8">
+          <div className="w-full bg-[#2c1a12] p-10 border-4 border-[#bfa77a] shadow-2xl flex flex-col items-center mb-8">
+            <h2 className="text-4xl mb-4 font-jacquard">Choose Your Character</h2>
+            <div className="flex justify-center gap-8">
+              {CHARACTERS.map((char) => (
+                <button
+                  key={char.name}
+                  onClick={() => setSelectedCharacter(char)}
+                  className={`focus:outline-none transition-all border-4 ${selectedCharacter?.name === char.name
+                      ? 'border-yellow-400 scale-105'
+                      : 'border-transparent hover:border-[#bfa77a]'
+                    }`}
+                  tabIndex={0}
+                >
+                  <Character
+                    name={char.name}
+                    charClass={char.charClass}
+                    spriteSrc={char.spriteSrc}
+                    frameWidth={char.frameWidth}
+                    frameHeight={char.frameHeight}
+                    frameCount={char.frameCount}
+                    fps={char.fps}
+                  />
+                </button>
+              ))}
+            </div>
+            {selectedCharacter && (
+              <button
+                className="mt-8 px-8 py-4 text-3xl bg-[#654532] border-4 border-[#bfa77a] hover:bg-[#7b5b43] transition-all font-jacquard"
+                onClick={() => setCharacterSelected(true)}
+              >
+                Continue
+              </button>
+            )}
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#1f0f07] to-[#3e1f13] text-white font-jacquard px-4 relative overflow-hidden">
       {/* Show task list if started */}
-      {started ? (
+      {started && characterSelected ? (
         <div className="w-full max-w-xl flex flex-col items-center">
-          <div className="w-100 bg-[#2c1a12] border-4 border-[#bfa77a] shadow-2xl flex flex-col items-center">
-            <PlayScreen />
+          <div className="w-100 bg-[#2c1a12] shadow-2xl flex flex-col items-center">
+            <PlayScreen character={selectedCharacter ?? undefined} />
           </div>
           <div className="w-100 bg-[#2c1a12] p-8 border-4 border-[#bfa77a] shadow-2xl flex flex-col items-center">
             <TaskList />
