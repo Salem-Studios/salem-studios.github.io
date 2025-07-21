@@ -35,7 +35,7 @@ export default function NumberInput({
                         title="Increase"
                     >
                         <Image
-                            src="/concept_art/weapons/sword_button.png"
+                            src="/concept_art/weapons/sword_button_scaled.png"
                             alt="Increase"
                             width={24}
                             height={24}
@@ -48,7 +48,7 @@ export default function NumberInput({
                         title="Decrease"
                     >
                         <Image
-                            src="/concept_art/weapons/sword_button.png"
+                            src="/concept_art/weapons/sword_button_scaled.png"
                             alt="Decrease"
                             width={24}
                             height={24}

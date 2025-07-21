@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import NumberInput from './components/NumberInput';
 import TaskList from './components/TaskList';
+import PlayScreen from './components/PlayScreen';
 
 export default function Home() {
   const [showSettings, setShowSettings] = useState(false);
@@ -19,8 +20,13 @@ export default function Home() {
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#1f0f07] to-[#3e1f13] text-white font-jacquard px-4 relative overflow-hidden">
       {/* Show task list if started */}
       {started ? (
-        <div className="w-full max-w-xl bg-[#2c1a12] p-8 border-4 border-[#bfa77a] shadow-2xl flex flex-col items-center">
-          <TaskList />
+        <div className="w-full max-w-xl flex flex-col items-center">
+          <div className="w-100 bg-[#2c1a12] border-4 border-[#bfa77a] shadow-2xl flex flex-col items-center">
+            <PlayScreen />
+          </div>
+          <div className="w-100 bg-[#2c1a12] p-8 border-4 border-[#bfa77a] shadow-2xl flex flex-col items-center">
+            <TaskList />
+          </div>
         </div>
       ) : (
         <>

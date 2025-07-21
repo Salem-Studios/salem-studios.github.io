@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig = {
-  output: "export",  // <=== enables static exports
+  output: "export",
   reactStrictMode: true,
   images: {
     unoptimized: true, // <=== disables Next.js image optimization

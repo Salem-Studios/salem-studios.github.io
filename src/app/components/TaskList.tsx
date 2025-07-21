@@ -66,7 +66,7 @@ export default function TaskList() {
     return (
         <div className="flex flex-col items-center space-y-4">
             <h2 className="text-4xl mb-4">Tasks</h2>
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 font-vt323">
                 <input
                     type="text"
                     value={input}
@@ -80,7 +80,7 @@ export default function TaskList() {
                 />
                 <button
                     onClick={handleAddTask}
-                    className="px-4 py-2 bg-[#654532] border border-[#bfa77a] hover:bg-[#7b5b43] text-white"
+                    className="px-4 py-2 bg-[#654532] border border-[#bfa77a] hover:bg-[#7b5b43] text-white font-jacquard"
                     disabled={tasks.length >= 50}
                 >
                     Add
@@ -135,7 +135,7 @@ export default function TaskList() {
                                 />
                             ) : (
                                 <span
-                                    className={`ml-1 transition-all duration-200 ${checked[index] ? 'line-through text-[#bfa77a]/50' : ''
+                                    className={`ml-1 font-vt323 transition-all duration-200 ${checked[index] ? 'line-through text-[#bfa77a]/50' : ''
                                         }`}
                                     onDoubleClick={() => handleEditTask(index)}
                                     title="Double-click to edit"
