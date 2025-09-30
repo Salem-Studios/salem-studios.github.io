@@ -16,7 +16,7 @@ export default function NumberInput({
     };
 
     return (
-        <label className="flex justify-between items-center text-3xl gap-4">
+        <label className="flex justify-between items-center text-4xl gap-4">
             {label}
             <div className="flex items-center gap-2">
                 <div className="relative">
@@ -24,7 +24,7 @@ export default function NumberInput({
                         type="number"
                         value={value}
                         onChange={(e) => handleChange(parseInt(e.target.value) || 0)}
-                        className="w-16 h-16 text-2xl text-center bg-[#3e2a1e] text-white border border-[#bfa77a] appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                        className="w-16 h-16 text-4xl text-center bg-[#3e2a1e] text-white border border-[#bfa77a] appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     />
                 </div>
 

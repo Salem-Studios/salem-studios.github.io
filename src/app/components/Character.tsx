@@ -33,8 +33,8 @@ export default function Character({
 
   return (
     <div className="flex flex-col items-center bg-[#3e2a1e] p-4 border-4 border-[#bfa77a] shadow-md min-w-[200px]">
-      <div className="text-2xl">{name}</div>
-      <div className="text-xl text-[#bfa77a]">{charClass}</div>
+      <div className="text-4xl">{name}</div>
+      <div className="text-2xl text-[#bfa77a]">{charClass}</div>
       <div
         style={{
           width: frameWidth * 2,
