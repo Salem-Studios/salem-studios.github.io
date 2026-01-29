@@ -108,6 +108,24 @@ export default function Home() {
     }
   };
 
+  const playAreaRef = useRef<HTMLDivElement | null>(null);
+  const coinIdRef = useRef(0);
+  const [coinPops, setCoinPops] = useState<Array<{ id: number; x: number; y: number }>>([]);
+
+  const spawnCoinPopNearCharacter = () => {
+    const rect = playAreaRef.current?.getBoundingClientRect();
+    const id = ++coinIdRef.current;
+
+    // Position near the character area (tweak multipliers if you want)
+    const x = rect ? rect.left + rect.width * 0.75 : window.innerWidth * 0.7;
+    const y = rect ? rect.top + rect.height * 0.25 : window.innerHeight * 0.3;
+
+    setCoinPops((p) => [...p, { id, x, y }]);
+    window.setTimeout(() => {
+      setCoinPops((p) => p.filter((c) => c.id !== id));
+    }, 900);
+  };
+
   if (started && !characterSelected) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#1f0f07] to-[#3e1f13] text-white font-jacquard px-4 relative overflow-hidden">
@@ -182,13 +200,14 @@ export default function Home() {
               Focus {focusMinutes}m • Break {breakMinutes}m • Long{" "}
               {longBreakMinutes}m
             </div>
-            <PlayScreen character={selectedCharacter ?? undefined} />
+
+            <div ref={playAreaRef} className="relative w-full flex justify-center">
+              <PlayScreen character={selectedCharacter ?? undefined} />
+            </div>
           </div>
+
           <div className="w-100 bg-[#2c1a12] p-8 border-4 border-[#bfa77a] shadow-2xl flex flex-col items-center">
-            <PomodoroTimer shortBreakMinutes={5} longBreakEvery={3} />
-          </div>
-          <div className="w-100 bg-[#2c1a12] p-8 border-4 border-[#bfa77a] shadow-2xl flex flex-col items-center">
-            <TaskList />
+            <TaskList onTaskCompleted={spawnCoinPopNearCharacter} />
           </div>
         </div>
       ) : (
@@ -259,6 +278,44 @@ export default function Home() {
           )}
         </>
       )}
+      {/* Floating PomodoroTimer on the right side */}
+      {started && characterSelected && (
+        <div
+          className="fixed top-8 right-8 z-40 bg-transparent shadow-none border-none"
+          style={{ minWidth: 220 }}
+        >
+          <PomodoroTimer
+            focusMinutes={focusMinutes}
+            shortBreakMinutes={breakMinutes}
+            longBreakMinutes={longBreakMinutes}
+            longBreakEvery={3}
+          />
+        </div>
+      )}
+      {/* Coin pops overlay (near character) */}
+      {coinPops.map((c) => (
+        <span
+          key={c.id}
+          className="coin-pop pointer-events-none select-none font-bold text-yellow-300"
+          style={{ position: "fixed", left: c.x, top: c.y, zIndex: 60 }}
+        >
+          +5 <span role="img" aria-label="coin">🪙</span>
+        </span>
+      ))}
+
+      <style jsx global>{`
+        .coin-pop {
+          animation: coin-pop 0.9s cubic-bezier(.23,1.12,.62,.99);
+          text-shadow: 0 2px 0 rgba(0,0,0,0.6);
+          font-size: 22px;
+        }
+        @keyframes coin-pop {
+          0% { opacity: 0; transform: translateY(0) scale(0.7); }
+          20% { opacity: 1; transform: translateY(-10px) scale(1.2); }
+          60% { opacity: 1; transform: translateY(-30px) scale(1); }
+          100% { opacity: 0; transform: translateY(-50px) scale(0.7); }
+        }
+      `}</style>
     </main>
   );
 }

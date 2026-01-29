@@ -1,13 +1,18 @@
 'use client';
 import { useState } from 'react';
 
-export default function TaskList() {
+type TaskListProps = {
+    onTaskCompleted?: (index: number) => void;
+};
+
+export default function TaskList({ onTaskCompleted }: TaskListProps) {
     const [tasks, setTasks] = useState<string[]>([]);
     const [input, setInput] = useState('');
     const [error, setError] = useState('');
     const [checked, setChecked] = useState<boolean[]>([]);
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [editingValue, setEditingValue] = useState('');
+    // removed: popTask state
 
     const handleAddTask = () => {
         if (!input.trim()) return;
@@ -36,6 +41,9 @@ export default function TaskList() {
         const newChecked = [...checked];
         newChecked[index] = !newChecked[index];
         setChecked(newChecked);
+
+        // Only award coins when checking OFF -> ON
+        if (newChecked[index]) onTaskCompleted?.(index);
     };
     const handleEditTask = (index: number) => {
         setEditingIndex(index);
@@ -97,10 +105,7 @@ export default function TaskList() {
                                     checked={checked[index] || false}
                                     onChange={() => handleCheck(index)}
                                     className="peer appearance-none h-4 w-4 border border-[#bfa77a] bg-[#3e2a1e] checked:bg-[#bfa77a] checked:border-[#bfa77a] transition-colors"
-                                    style={{
-                                        minWidth: '1rem',
-                                        minHeight: '1rem',
-                                    }}
+                                    style={{ minWidth: '1rem', minHeight: '1rem' }}
                                 />
                                 <span
                                     className="pointer-events-none absolute left-0 top-0 h-4 w-4 border border-[#bfa77a] bg-[#3e2a1e] peer-checked:bg-[#bfa77a] flex items-center justify-center"
@@ -158,3 +163,14 @@ export default function TaskList() {
         </div>
     );
 }
+
+// Add this to your CSS (e.g. globals.css or a module)
+// .animate-coin-pop {
+//   animation: coin-pop 0.9s cubic-bezier(.23,1.12,.62,.99);
+// }
+// @keyframes coin-pop {
+//   0% { opacity: 0; transform: translateY(0) scale(0.7); }
+//   20% { opacity: 1; transform: translateY(-10px) scale(1.2); }
+//   60% { opacity: 1; transform: translateY(-30px) scale(1); }
+//   100% { opacity: 0; transform: translateY(-50px) scale(0.7); }
+// }
