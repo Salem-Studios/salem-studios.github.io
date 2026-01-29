@@ -29,6 +29,21 @@ const CHARACTERS = [
   },
 ];
 
+const EXP_PER_TASK = 10;
+const COINS_PER_TASK = 5;
+
+function getLevelInfo(totalExp: number) {
+  let level = 1;
+  let expLeft = Math.max(0, Math.floor(totalExp));
+  let expToNext = 50; // base requirement
+  while (expLeft >= expToNext) {
+    expLeft -= expToNext;
+    level += 1;
+    expToNext = 50 + (level - 1) * 25; // grows each level
+  }
+  return { level, expInLevel: expLeft, expToNext };
+}
+
 export default function Home() {
   const [muted, setMuted] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -41,6 +56,30 @@ export default function Home() {
   const [focusMinutes, setFocusMinutes] = useState(25);
   const [breakMinutes, setBreakMinutes] = useState(5);
   const [longBreakMinutes, setLongBreakMinutes] = useState(15);
+
+  const [totalExp, setTotalExp] = useState<number>(() => {
+    if (typeof window === "undefined") return 0;
+    const raw = localStorage.getItem("playerExp");
+    const n = raw ? Number(raw) : 0;
+    return Number.isFinite(n) ? n : 0;
+  });
+
+  const [totalCoins, setTotalCoins] = useState<number>(() => {
+    if (typeof window === "undefined") return 0;
+    const raw = localStorage.getItem("playerCoins");
+    const n = raw ? Number(raw) : 0;
+    return Number.isFinite(n) ? n : 0;
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("playerExp", String(totalExp));
+      localStorage.setItem("playerCoins", String(totalCoins));
+    }
+  }, [totalExp, totalCoins]);
+
+  const { level, expInLevel, expToNext } = getLevelInfo(totalExp);
+  const expPct = Math.max(0, Math.min(100, (expInLevel / expToNext) * 100));
 
   // Background music
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -60,7 +99,7 @@ export default function Home() {
 
     // Start after first user interaction
     const resume = () => {
-      audioRef.current?.play().catch(() => {});
+      audioRef.current?.play().catch(() => { });
       window.removeEventListener("pointerdown", resume);
       window.removeEventListener("keydown", resume);
     };
@@ -87,11 +126,11 @@ export default function Home() {
 
   const toggleMute = () => {
     setMuted((m) => !m);
-    audioRef.current?.play().catch(() => {});
+    audioRef.current?.play().catch(() => { });
   };
 
   const ensureMusic = () => {
-    audioRef.current?.play().catch(() => {});
+    audioRef.current?.play().catch(() => { });
   };
 
   const handleButtonClick = (label: string) => {
@@ -102,17 +141,37 @@ export default function Home() {
     } else if (label === "Start") {
       const startSound = new Audio("/audio/start.wav");
       startSound.volume = 0.6;
-      startSound.play().catch(() => {});
+      startSound.play().catch(() => { });
 
       setStarted(true);
     }
   };
 
   const playAreaRef = useRef<HTMLDivElement | null>(null);
+  const playContentRef = useRef<HTMLDivElement | null>(null);
+  const [playWidth, setPlayWidth] = useState<number | null>(null);
+
+  useEffect(() => {
+    const el = playContentRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+
+    const update = () => setPlayWidth(el.getBoundingClientRect().width);
+    update();
+
+    const ro = new ResizeObserver(() => update());
+    ro.observe(el);
+
+    return () => ro.disconnect();
+  }, [started, characterSelected, selectedCharacter]);
+
   const coinIdRef = useRef(0);
   const [coinPops, setCoinPops] = useState<Array<{ id: number; x: number; y: number }>>([]);
 
   const spawnCoinPopNearCharacter = () => {
+    // award EXP + coins on completion
+    setTotalExp((e) => e + EXP_PER_TASK);
+    setTotalCoins((c) => c + COINS_PER_TASK);
+
     const rect = playAreaRef.current?.getBoundingClientRect();
     const id = ++coinIdRef.current;
 
@@ -143,15 +202,14 @@ export default function Home() {
                     if (char.sound) {
                       const voice = new Audio(char.sound);
                       voice.volume = 0.7;
-                      voice.play().catch(() => {});
+                      voice.play().catch(() => { });
                     }
                     ensureMusic();
                   }}
-                  className={`focus:outline-none transition-all border-4 ${
-                    selectedCharacter?.name === char.name
-                      ? "border-yellow-400 scale-105"
-                      : "border-transparent hover:border-[#bfa77a]"
-                  }`}
+                  className={`focus:outline-none transition-all border-4 ${selectedCharacter?.name === char.name
+                    ? "border-yellow-400 scale-105"
+                    : "border-transparent hover:border-[#bfa77a]"
+                    }`}
                   tabIndex={0}
                 >
                   <Character
@@ -202,8 +260,31 @@ export default function Home() {
               {longBreakMinutes}m
             </div> */}
 
+            {/* Level HUD (above PlayScreen) */}
+            <div className="w-full px-4 pt-3 pb-2">
+              <div className="mx-auto">
+                <div className="flex items-baseline justify-between gap-4">
+                  <div className="text-lg font-vt323 text-[#f3d08a] drop-shadow-[0_2px_0_rgba(0,0,0,0.6)]">
+                    Lvl {level} • {expInLevel}/{expToNext} EXP
+                  </div>
+                  <div className="text-lg font-vt323 text-[#f3d08a] drop-shadow-[0_2px_0_rgba(0,0,0,0.6)]">
+                    Coins: {totalCoins}
+                  </div>
+                </div>
+
+                <div className="mt-1 h-2 w-full bg-black/40">
+                  <div
+                    className="h-2 bg-[#f3d08a]"
+                    style={{ width: `${expPct}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+
             <div ref={playAreaRef} className="relative w-full flex justify-center">
-              <PlayScreen character={selectedCharacter ?? undefined} />
+              <div ref={playContentRef} className="inline-block">
+                <PlayScreen character={selectedCharacter ?? undefined} />
+              </div>
             </div>
           </div>
 
@@ -215,9 +296,8 @@ export default function Home() {
         <>
           {/* Background blur and scale when settings are open */}
           <div
-            className={`flex flex-col items-center w-full transition-all duration-300 ${
-              showSettings ? "blur-md scale-[0.97]" : ""
-            }`}
+            className={`flex flex-col items-center w-full transition-all duration-300 ${showSettings ? "blur-md scale-[0.97]" : ""
+              }`}
           >
             <h1 className="font-jacquard text-8xl mb-12">Medieval Pomodoro</h1>
             <div className="flex flex-col space-y-6 items-center w-full max-w-xs">
@@ -293,14 +373,17 @@ export default function Home() {
           />
         </div>
       )}
-      {/* Coin pops overlay (near character) */}
+      {/* Coin/EXP pops overlay (near character) */}
       {coinPops.map((c) => (
         <span
           key={c.id}
-          className="coin-pop pointer-events-none select-none font-bold text-yellow-300"
+          className="coin-pop pointer-events-none select-none font-bold"
           style={{ position: "fixed", left: c.x, top: c.y, zIndex: 60 }}
         >
-          +5 <span role="img" aria-label="coin">🪙</span>
+          <span className="block text-yellow-300">
+            +{COINS_PER_TASK} <span role="img" aria-label="coin">🪙</span>
+          </span>
+          <span className="block text-[#f3d08a]">+{EXP_PER_TASK} EXP</span>
         </span>
       ))}
 
@@ -309,6 +392,8 @@ export default function Home() {
           animation: coin-pop 0.9s cubic-bezier(.23,1.12,.62,.99);
           text-shadow: 0 2px 0 rgba(0,0,0,0.6);
           font-size: 22px;
+          line-height: 1.05;
+          white-space: nowrap;
         }
         @keyframes coin-pop {
           0% { opacity: 0; transform: translateY(0) scale(0.7); }
