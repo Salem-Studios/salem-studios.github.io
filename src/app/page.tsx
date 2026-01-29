@@ -34,6 +34,21 @@ const CHARACTERS = [
   },
 ];
 
+const EXP_PER_TASK = 10;
+const COINS_PER_TASK = 5;
+
+function getLevelInfo(totalExp: number) {
+  let level = 1;
+  let expLeft = Math.max(0, Math.floor(totalExp));
+  let expToNext = 50; // base requirement
+  while (expLeft >= expToNext) {
+    expLeft -= expToNext;
+    level += 1;
+    expToNext = 50 + (level - 1) * 25; // grows each level
+  }
+  return { level, expInLevel: expLeft, expToNext };
+}
+
 export default function Home() {
   const [screen, setScreen] = useState<Screen>("menu");
   const [hasSession, setHasSession] = useState(false);
@@ -42,6 +57,30 @@ export default function Home() {
   const [focusMinutes, setFocusMinutes] = useState(25);
   const [breakMinutes, setBreakMinutes] = useState(5);
   const [longBreakMinutes, setLongBreakMinutes] = useState(15);
+
+  const [totalExp, setTotalExp] = useState<number>(() => {
+    if (typeof window === "undefined") return 0;
+    const raw = localStorage.getItem("playerExp");
+    const n = raw ? Number(raw) : 0;
+    return Number.isFinite(n) ? n : 0;
+  });
+
+  const [totalCoins, setTotalCoins] = useState<number>(() => {
+    if (typeof window === "undefined") return 0;
+    const raw = localStorage.getItem("playerCoins");
+    const n = raw ? Number(raw) : 0;
+    return Number.isFinite(n) ? n : 0;
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("playerExp", String(totalExp));
+      localStorage.setItem("playerCoins", String(totalCoins));
+    }
+  }, [totalExp, totalCoins]);
+
+  const { level, expInLevel, expToNext } = getLevelInfo(totalExp);
+  const expPct = Math.max(0, Math.min(100, (expInLevel / expToNext) * 100));
 
   const [muted, setMuted] = useState(false);
   const [hydrated, setHydrated] = useState(false);
@@ -177,12 +216,18 @@ export default function Home() {
   // COINSSSS WHOAAAA
   // --------------------------
   const playAreaRef = useRef<HTMLDivElement | null>(null);
+  const playContentRef = useRef<HTMLDivElement | null>(null);
+
   const coinIdRef = useRef(0);
   const [coinPops, setCoinPops] = useState<
     Array<{ id: number; x: number; y: number }>
   >([]);
 
   const spawnCoinPopNearCharacter = () => {
+    // award EXP + coins on completion
+    setTotalExp((e) => e + EXP_PER_TASK);
+    setTotalCoins((c) => c + COINS_PER_TASK);
+
     const rect = playAreaRef.current?.getBoundingClientRect();
     const id = ++coinIdRef.current;
 
@@ -332,11 +377,40 @@ export default function Home() {
       {screen === "play" ? (
         <div className="w-full max-w-xl flex flex-col items-center">
           <div className="w-100 bg-[#2c1a12] shadow-2xl flex flex-col items-center">
+            {/* below is the strip above the playscreen that shows the settings -oyku */}
+            {/* <div className="text-2xl text-[#bfa77a] mb-2 mt-3">
+              Focus {focusMinutes}m • Break {breakMinutes}m • Long{" "}
+              {longBreakMinutes}m
+            </div> */}
+
+            {/* Level HUD (above PlayScreen) */}
+            <div className="w-full px-4 pt-3 pb-2">
+              <div className="mx-auto">
+                <div className="flex items-baseline justify-between gap-4">
+                  <div className="text-lg font-vt323 text-[#f3d08a] drop-shadow-[0_2px_0_rgba(0,0,0,0.6)]">
+                    Lvl {level} • {expInLevel}/{expToNext} EXP
+                  </div>
+                  <div className="text-lg font-vt323 text-[#f3d08a] drop-shadow-[0_2px_0_rgba(0,0,0,0.6)]">
+                    Coins: {totalCoins}
+                  </div>
+                </div>
+
+                <div className="mt-1 h-2 w-full bg-black/40">
+                  <div
+                    className="h-2 bg-[#f3d08a]"
+                    style={{ width: `${expPct}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+
             <div
               ref={playAreaRef}
               className="relative w-full flex justify-center"
             >
-              <PlayScreen character={selectedCharacter ?? undefined} />
+              <div ref={playContentRef} className="inline-block">
+                <PlayScreen character={selectedCharacter ?? undefined} />
+              </div>
             </div>
           </div>
 
@@ -433,13 +507,16 @@ export default function Home() {
       {coinPops.map((c) => (
         <span
           key={c.id}
-          className="coin-pop pointer-events-none select-none font-bold text-yellow-300"
+          className="coin-pop pointer-events-none select-none font-bold"
           style={{ position: "fixed", left: c.x, top: c.y, zIndex: 60 }}
         >
-          +5{" "}
-          <span role="img" aria-label="coin">
-            🪙
+          <span className="block text-yellow-300">
+            +{COINS_PER_TASK}{" "}
+            <span role="img" aria-label="coin">
+              🪙
+            </span>
           </span>
+          <span className="block text-[#f3d08a]">+{EXP_PER_TASK} EXP</span>
         </span>
       ))}
 
@@ -448,6 +525,8 @@ export default function Home() {
           animation: coin-pop 0.9s cubic-bezier(0.23, 1.12, 0.62, 0.99);
           text-shadow: 0 2px 0 rgba(0, 0, 0, 0.6);
           font-size: 22px;
+          line-height: 1.05;
+          white-space: nowrap;
         }
         @keyframes coin-pop {
           0% {
