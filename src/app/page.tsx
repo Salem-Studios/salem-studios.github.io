@@ -185,7 +185,7 @@ export default function Home() {
             <PlayScreen character={selectedCharacter ?? undefined} />
           </div>
           <div className="w-100 bg-[#2c1a12] p-8 border-4 border-[#bfa77a] shadow-2xl flex flex-col items-center">
-            <PomodoroTimer shortBreakMinutes={1} longBreakEvery={3} />
+            <PomodoroTimer shortBreakMinutes={5} longBreakEvery={3} />
           </div>
           <div className="w-100 bg-[#2c1a12] p-8 border-4 border-[#bfa77a] shadow-2xl flex flex-col items-center">
             <TaskList />
