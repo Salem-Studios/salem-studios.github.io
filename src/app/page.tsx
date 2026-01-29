@@ -196,10 +196,11 @@ export default function Home() {
       {started && characterSelected ? (
         <div className="w-full max-w-xl flex flex-col items-center">
           <div className="w-100 bg-[#2c1a12] shadow-2xl flex flex-col items-center">
-            <div className="text-2xl text-[#bfa77a] mb-2 mt-3">
+            {/* below is the strip above the playscreen that shows the settings -oyku */}
+            {/* <div className="text-2xl text-[#bfa77a] mb-2 mt-3">
               Focus {focusMinutes}m • Break {breakMinutes}m • Long{" "}
               {longBreakMinutes}m
-            </div>
+            </div> */}
 
             <div ref={playAreaRef} className="relative w-full flex justify-center">
               <PlayScreen character={selectedCharacter ?? undefined} />
