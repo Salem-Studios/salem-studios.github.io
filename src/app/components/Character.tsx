@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useSpriteAnimation } from "../hooks/useSpriteAnimation";
 
 interface CharacterProps {
   name: string;
@@ -19,17 +19,7 @@ export default function Character({
   frameCount,
   fps = 8,
 }: CharacterProps) {
-  const [frame, setFrame] = useState(0);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setFrame((prev) => (prev + 1) % frameCount);
-    }, 1000 / fps);
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [frameCount, fps]);
+  const frame = useSpriteAnimation(frameCount, fps);
 
   return (
     <div className="flex flex-col items-center bg-[#3e2a1e] p-4 border-4 border-[#bfa77a] shadow-md min-w-[200px]">
@@ -42,10 +32,10 @@ export default function Character({
           backgroundImage: `url(${spriteSrc})`,
           backgroundPosition: `-${frame * frameWidth * 2}px 0px`,
           backgroundSize: `${frameWidth * frameCount * 2}px ${frameHeight * 2}px`,
-          imageRendering: 'pixelated',
-          position: 'relative',
-          left: '15%',
-          margin: '0 auto',
+          imageRendering: "pixelated",
+          position: "relative",
+          left: "15%",
+          margin: "0 auto",
         }}
         className="mb-2"
       />
