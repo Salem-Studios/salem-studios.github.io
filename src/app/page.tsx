@@ -371,7 +371,7 @@ export default function Home() {
         onToggleMute={toggleMute}
         onMenu={() => setScreen("menu")}
         onSettings={() => setShowSettings(true)}
-        showMenuButton={screen !== "menu"} // hide when alr on menu
+        showMenuButton={true}
       />
 
       {screen === "play" ? (
