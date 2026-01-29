@@ -178,10 +178,11 @@ export default function Home() {
       {started && characterSelected ? (
         <div className="w-full max-w-xl flex flex-col items-center">
           <div className="w-100 bg-[#2c1a12] shadow-2xl flex flex-col items-center">
-            <div className="text-2xl text-[#bfa77a] mb-2 mt-3">
+            {/* below is the strip above the playscreen that shows the settings -oyku */}
+            {/* <div className="text-2xl text-[#bfa77a] mb-2 mt-3">
               Focus {focusMinutes}m • Break {breakMinutes}m • Long{" "}
               {longBreakMinutes}m
-            </div>
+            </div> */}
             <PlayScreen character={selectedCharacter ?? undefined} />
           </div>
           <div className="w-100 bg-[#2c1a12] p-8 border-4 border-[#bfa77a] shadow-2xl flex flex-col items-center">
