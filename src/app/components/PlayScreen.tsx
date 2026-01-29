@@ -31,6 +31,13 @@ export default function PlayScreen({ character }: PlayScreenProps) {
         className="object-cover border-r-4 border-l-4 border-t-4 border-[#bfa77a]"
         style={{ zIndex: 1 }}
       />
+      <Image
+        src= "/concept_art/backgrounds/tavern_scaled.png"
+        alt="Overlay"
+        fill
+        className="object-cover border-r-4 border-l-4 border-t-4 border-[#bfa77a]"
+        style={{ zIndex: 15 }}
+      />
 
       {character && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 w-[90%] flex items-center justify-center gap-2 text-center">

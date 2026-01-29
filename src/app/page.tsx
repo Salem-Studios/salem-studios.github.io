@@ -8,6 +8,7 @@ import PlayScreen from "./components/PlayScreen";
 import Character from "./components/Character";
 import PomodoroTimer from "./components/PomodoroTimer";
 import Toolbar from "./components/Toolbar";
+import Shop from "./components/Shop";
 
 type Screen = "menu" | "characterSelect" | "play";
 
@@ -71,6 +72,10 @@ export default function Home() {
     const n = raw ? Number(raw) : 0;
     return Number.isFinite(n) ? n : 0;
   });
+
+  const [shopOpen, setShopOpen] = useState(false); // ✅ add
+  const openShop = () => setShopOpen(true);        // ✅ add
+  const closeShop = () => setShopOpen(false);      // ✅ add
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -223,7 +228,16 @@ export default function Home() {
     Array<{ id: number; x: number; y: number }>
   >([]);
 
-  const spawnCoinPopNearCharacter = () => {
+  // Track which task indices have been rewarded to prevent double rewards
+  const rewardedTaskIndicesRef = useRef<Set<number>>(new Set());
+
+  const spawnCoinPopNearCharacter = (taskIndex?: number) => {
+    // Prevent double rewards for the same task
+    if (typeof taskIndex === "number") {
+      if (rewardedTaskIndicesRef.current.has(taskIndex)) return;
+      rewardedTaskIndicesRef.current.add(taskIndex);
+    }
+
     // award EXP + coins on completion
     setTotalExp((e) => e + EXP_PER_TASK);
     setTotalCoins((c) => c + COINS_PER_TASK);
@@ -383,7 +397,6 @@ export default function Home() {
               {longBreakMinutes}m
             </div> */}
 
-            {/* Level HUD (above PlayScreen) */}
             <div className="w-full px-4 pt-3 pb-2">
               <div className="mx-auto">
                 <div className="flex items-baseline justify-between gap-4">
@@ -408,17 +421,59 @@ export default function Home() {
               ref={playAreaRef}
               className="relative w-full flex justify-center"
             >
-              <div ref={playContentRef} className="inline-block">
+              <div ref={playContentRef} className="relative inline-block">
                 <PlayScreen character={selectedCharacter ?? undefined} />
+                <button
+                  type="button"
+                  onClick={openShop}
+                  aria-label="Open shop"
+                  className="absolute bg-transparent border-0 p-0"
+                  style={{
+                    left: "74%",
+                    top: "44%",
+                    width: "25%",
+                    height: "23%",
+                    zIndex: 50,
+                    cursor: "pointer",
+                  }}
+                />
               </div>
             </div>
           </div>
+          { shopOpen && (
+            <Shop
+              title="Shop"
+              coins={totalCoins}
+              onClose={closeShop}
+              items={[
+                {
+                  id: "char_karl_hat",
+                  name: "Karl's Hat",
+                  description: "A sturdy straw hat worn by Karl.",
+                  cost: 100,
+                },
+                {
+                  id: "char_susan_necklace",
+                  name: "Susan's Necklace",
+                  description: "A beautiful necklace worn by Susan.",
+                  cost: 150,
+                },
+                {
+                  id: "bg_forest",
+                  name: "Forest Background",
+                  description: "A serene forest backdrop for your character.",
+                  cost: 200,
+                },
+              ]} 
+              open={true}              
+              />
+            )}
+
 
           <div className="w-100 bg-[#2c1a12] p-8 border-4 border-[#bfa77a] shadow-2xl flex flex-col items-center">
             <TaskList onTaskCompleted={spawnCoinPopNearCharacter} />
           </div>
 
-          {/* Floating PomodoroTimer on the right side */}
           <div
             className="fixed top-8 right-8 z-40 bg-transparent shadow-none border-none"
             style={{ minWidth: 220 }}
@@ -516,7 +571,7 @@ export default function Home() {
               🪙
             </span>
           </span>
-          <span className="block text-[#f3d08a]">+{EXP_PER_TASK} EXP</span>
+          <span className="block text-yellow-300 font-vt323">+{EXP_PER_TASK} EXP</span>
         </span>
       ))}
 
